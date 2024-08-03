@@ -35,9 +35,9 @@ pub fn process_password(opts:&GenPassOpts)->anyhow::Result<()> {
         password.push(*c as char);
     }
     let result = String::from_utf8(password.into())?;
-    println!("{}", result);
+    eprintln!("{}", result);
     let v = zxcvbn(&result,&[]);
-    println!("{}",v.score());
+    eprintln!("{}",v.score());
     Ok(())
 }
 
