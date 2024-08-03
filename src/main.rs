@@ -1,11 +1,22 @@
 use clap::Parser;
-use rcli::{process_csv, Opts, Subcommand};
+use rcli::{process_csv,process_password, Opts, Subcommand};
 
 
 fn main()->anyhow::Result<()>{
     let opts= Opts::parse();
     match opts.cmd {
-        Subcommand::Csv(csvcmd)=>process_csv(&csvcmd.input, &csvcmd.output),
+        Subcommand::Trans(opts)=>{
+            let output = if let Some(outs)=opts.output{
+                outs.clone()
+            }else{
+                format!("output.{}", opts.format)
+            };
+            process_csv(&opts.input,output,opts.format)?;
+        },
+        Subcommand::GenPass(genopts)=>{
+            process_password(&genopts)?;
+        }
     }
+    Ok(())
 }
 
