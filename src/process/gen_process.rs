@@ -1,6 +1,6 @@
 use anyhow::Ok;
 use rand::{seq::SliceRandom, thread_rng, Rng};
-use crate::opts::GenPassOpts;
+use crate::cli::GenPassOpts;
 use zxcvbn::zxcvbn;
 
 const UPPER:&[u8] = b"ABCDEFGHJKLMNPQRSTUVWXYZ";

@@ -1,20 +1,6 @@
 use std::{path::Path, str::FromStr};
+
 use clap::Parser;
-
-#[derive(Debug,Parser)]
-#[command(name="rcli",version,author,about,long_about=None)]
-pub struct Opts{
-    #[command(subcommand)]
-    pub cmd:Subcommand,
-}
-
-#[derive(Debug,Parser)]
-pub enum Subcommand {
-    #[command(name="trans",about="Convert CSV to other format")]
-    Trans(TransOpts),
-    #[command(name="genpass",about="Generate password")]
-    GenPass(GenPassOpts)
-}
 
 #[derive(Debug,Clone,Copy)]
 pub enum OutPutFormat {
@@ -40,23 +26,6 @@ pub struct TransOpts{
     pub header:bool,
 }
 
-#[derive(Debug,Parser)]
-pub struct GenPassOpts{
-    #[arg(short,long,default_value_t=16)]
-    pub length:u8,
-
-    #[arg(long,default_value_t=true)]
-    pub uppercase:bool,
-
-    #[arg(long,default_value_t=true)]
-    pub lowercase:bool,
-
-    #[arg(long,default_value_t=true)]
-    pub number:bool,
-
-    #[arg(long,default_value_t=true)]
-    pub symbols:bool
-}
 
 fn verify_file_exists(filename:&str)->Result<String,String>{
     if Path::new(filename).exists(){
