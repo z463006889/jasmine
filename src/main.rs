@@ -28,6 +28,9 @@ fn main()->anyhow::Result<()>{
                     process_decode(&d.output, d.format)?;
                 }
             }
+        },
+        Subcommand::Text(opts)=>{
+            println!("{:?}",opts);
         }
     }
     Ok(())

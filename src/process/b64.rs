@@ -3,7 +3,7 @@ use std::{fs::File, io::Read};
 use anyhow::Ok;
 use base64::{engine::general_purpose::{STANDARD,URL_SAFE}, prelude::*};
 
-use crate::Base64Type;
+use crate::{get_reader, Base64Type};
 pub fn process_encode(input: &str,format:Base64Type) -> anyhow::Result<()>{
     let mut reader = get_reader(input)?;
     let mut buf=Vec::new();
@@ -38,11 +38,3 @@ pub fn process_decode(output: &str,format:Base64Type) -> anyhow::Result<()>{
     Ok(())
 }
 
-fn get_reader(data: &str)->anyhow::Result<Box<dyn Read>>{
-    let mut reader:Box<dyn Read> =if data=="-"{
-        Box::new(std::io::stdin())
-    }else{
-        Box::new(File::open(data)?)
-    };
-    Ok(reader)
-}
