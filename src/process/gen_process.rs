@@ -1,14 +1,14 @@
 use anyhow::Ok;
 use rand::{seq::SliceRandom, thread_rng, Rng};
 use crate::cli::GenPassOpts;
-use zxcvbn::zxcvbn;
+use zxcvbn::{zxcvbn, Score};
 
 const UPPER:&[u8] = b"ABCDEFGHJKLMNPQRSTUVWXYZ";
 const LOWER:&[u8] = b"abcdefghijkmnpqrstuvwxyz";
 const NUMBER:&[u8] = b"123456789";
 const SYMBOL:&[u8] = b"!@#$%^&*-_"; //
 
-pub fn process_password(opts:&GenPassOpts)->anyhow::Result<()> {
+pub fn process_password(opts:&GenPassOpts)->anyhow::Result<(std::string::String, Score)> {
 
     let mut rng = rand::thread_rng();
     let mut password=String::new();
@@ -35,10 +35,10 @@ pub fn process_password(opts:&GenPassOpts)->anyhow::Result<()> {
         password.push(*c as char);
     }
     let result = String::from_utf8(password.into())?;
-    eprintln!("{}", result);
+
     let v = zxcvbn(&result,&[]);
-    eprintln!("{}",v.score());
-    Ok(())
+    let ret = (result, v.score());
+    Ok(ret)
 }
 
 fn find_random_char(c:&[u8]) -> anyhow::Result<u8> {

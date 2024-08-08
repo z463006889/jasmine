@@ -1,4 +1,4 @@
-use std::{fmt, path::Path, str::FromStr};
+use std::{fmt, path::{Path, PathBuf}, str::FromStr};
 use clap::Parser;
 
 
@@ -9,7 +9,18 @@ pub enum TextSubcommand {
     Sign(TextSignOpts),
     #[command(about="Verify a signed message")]
     Verify(TextVerifyOpts),
+    #[command(about="make a key for a command")]
+    Generate(TextKeyGenrateOpts),
 }
+
+#[derive(Debug,Parser)]
+pub struct TextKeyGenrateOpts{
+    #[arg(short, long,default_value="blake3",value_parser=parse_text_sign_format)]
+    pub format: TextSignFormat,
+    #[arg(short, long,value_parser=parse_path)]
+    pub output:PathBuf,
+}
+
 
 #[derive(Debug,Parser)]
 pub struct TextSignOpts{
@@ -29,21 +40,23 @@ pub struct  TextVerifyOpts{
     pub key:String,
     #[arg(short,long)]
     pub sign:String,
+    #[arg(short,long,default_value="blake3",value_parser=parse_text_sign_format)]
+    pub format:TextSignFormat,
 } 
 
-#[derive(Debug,Parser,Clone)]
+#[derive(Debug,Parser,Clone,Copy)]
 pub enum TextSignFormat {
     Blake3,
     Ed25519,
 }
 
-impl FromStr for TextSignFormat {
+impl FromStr for TextSignFormat {  
     type Err=anyhow::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "blake3" => Ok(TextSignFormat::Blake3),
-            "Ed25519"=>Ok(TextSignFormat::Ed25519),
+            "ed25519"=>Ok(TextSignFormat::Ed25519),
             _=> Err(anyhow::anyhow!("Invalid value for TextSignFormat")),
         }
     }
@@ -73,5 +86,15 @@ fn verify_file_exists(filename:&str)->Result<String,String>{
         Ok(filename.into())
     }else{
         Err("file does not exist".into())
+    }
+}
+
+
+fn parse_path(path:&str) -> Result<PathBuf,&'static str>{
+    let p = Path::new(path);
+    if p.exists() && p.is_dir(){
+        Ok(path.into())
+    }else {
+        Err("path does not exist".into())
     }
 }
