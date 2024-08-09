@@ -71,20 +71,14 @@ async fn main()->anyhow::Result<()>{
 
 #[cfg(test)]
 mod hashtests {
+    use tower_http::services::ServeDir;
+
     #[test]
     fn hash_test() {
-        let sd = std::io::stdin();
-        let mut buf = String::new();
-        sd.read_line(&mut buf);
-        let hash = blake3::hash(buf.as_bytes());
-        println!("{}", hash);
-
+        let service = ServeDir::new(".");
+        println!("{:?}", service);
     }
 
-    #[test]
-    fn test_ed25519_1() {
-        
-    }
 
 
 }
