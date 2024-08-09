@@ -2,6 +2,7 @@ mod csv_process;
 mod gen_process;
 mod b64;
 mod text;
+mod http_serve;
 
 
 
@@ -12,3 +13,4 @@ pub use b64::process_encode;
 pub use text::process_sign;
 pub use text::process_verify;
 pub use text::process_key_gen;
+pub use http_serve::process_http_server;

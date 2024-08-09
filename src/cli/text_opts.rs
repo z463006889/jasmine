@@ -89,7 +89,6 @@ fn verify_file_exists(filename:&str)->Result<String,String>{
     }
 }
 
-
 fn parse_path(path:&str) -> Result<PathBuf,&'static str>{
     let p = Path::new(path);
     if p.exists() && p.is_dir(){

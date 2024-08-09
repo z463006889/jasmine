@@ -1,10 +1,11 @@
 use std::fs;
 
 use clap::Parser;
-use rcli::{process_csv, process_decode, process_encode, process_password, process_sign,process_verify,process_key_gen, Base64Subcommand, Opts, Subcommand, TextSignFormat, TextSubcommand};
+use rcli::{process_csv, process_decode, process_encode, process_http_server, process_key_gen, process_password, process_sign, process_verify, Base64Subcommand, HttpSubcommand, Opts, Subcommand, TextSignFormat, TextSubcommand};
 
-
-fn main()->anyhow::Result<()>{
+#[tokio::main]
+async fn main()->anyhow::Result<()>{
+    tracing_subscriber::fmt::init();
     let opts= Opts::parse();
     match opts.cmd {
         Subcommand::Trans(opts)=>{
@@ -54,6 +55,13 @@ fn main()->anyhow::Result<()>{
                             fs::write(dir_name.join("ed25519.pk"), &ret[1])?;
                         }
                     }
+                }
+            }
+        },
+        Subcommand::Http(httpopt)=>{
+            match httpopt {
+                HttpSubcommand::Serve(opts)=>{
+                    process_http_server(opts.dir, opts.port).await?;
                 }
             }
         }
