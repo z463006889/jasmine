@@ -1,6 +1,7 @@
 use std::{path::Path, str::FromStr};
-
 use clap::Parser;
+
+use crate::{process_csv, CommandExecutor};
 
 #[derive(Debug,Clone,Copy)]
 pub enum OutPutFormat {
@@ -32,6 +33,18 @@ fn verify_file_exists(filename:&str)->Result<String,String>{
         Ok(filename.into())
     }else{
         Err("file does not exist".into())
+    }
+}
+
+impl CommandExecutor for TransOpts {
+    async fn execute(self)->anyhow::Result<()> {
+        let output = if let Some(outs)=self.output{
+            outs.clone()
+        }else{
+            format!("output.{}", self.format)
+        };
+        process_csv(&self.input,output,self.format)?;
+        Ok(())
     }
 }
 

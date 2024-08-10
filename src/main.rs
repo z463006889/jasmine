@@ -1,71 +1,13 @@
-use std::fs;
-
 use clap::Parser;
-use rcli::{process_csv, process_decode, process_encode, process_http_server, process_key_gen, process_password, process_sign, process_verify, Base64Subcommand, HttpSubcommand, Opts, Subcommand, TextSignFormat, TextSubcommand};
+use rcli::{CommandExecutor, Opts};
+
+
 
 #[tokio::main]
 async fn main()->anyhow::Result<()>{
     tracing_subscriber::fmt::init();
     let opts= Opts::parse();
-    match opts.cmd {
-        Subcommand::Trans(opts)=>{
-            let output = if let Some(outs)=opts.output{
-                outs.clone()
-            }else{
-                format!("output.{}", opts.format)
-            };
-            process_csv(&opts.input,output,opts.format)?;
-        },
-        Subcommand::GenPass(genopts)=>{
-            let pw=process_password(&genopts)?;
-            println!("{}",pw.0);
-            println!("{}",pw.1);
-        },
-        Subcommand::Base64(base64)=>{
-            match base64 {
-                Base64Subcommand::Encode(s) =>{
-                    let encode_ret= process_encode(&s.input, s.format)?;
-                    println!("{}",encode_ret);
-                },
-                Base64Subcommand::Decode(d)=>{
-                    let decode_ret = process_decode(&d.output, d.format)?;
-                    println!("{}",decode_ret);
-                }
-            }
-        },
-        Subcommand::Text(subcom)=>{
-            match subcom {
-                TextSubcommand::Sign(opts)=>{
-                    process_sign(&opts.input, &opts.key, opts.format)?;
-                },
-                TextSubcommand::Verify(opts)=>{
-                    process_verify(&opts.input, &opts.key, opts.format, &opts.sign)?;
-                },
-                TextSubcommand::Generate(opts)=>{
-                    let ret = process_key_gen(opts.format)?;
-                    match opts.format {
-                        TextSignFormat::Blake3=>{
-                            let name= opts.output.join("blake3.txt");
-                            fs::write(name, &ret[0])?;
-
-                        },
-                        TextSignFormat::Ed25519=>{
-                            let dir_name = opts.output;
-                            fs::write(dir_name.join("ed25519.sk"), &ret[0])?;
-                            fs::write(dir_name.join("ed25519.pk"), &ret[1])?;
-                        }
-                    }
-                }
-            }
-        },
-        Subcommand::Http(httpopt)=>{
-            match httpopt {
-                HttpSubcommand::Serve(opts)=>{
-                    process_http_server(opts.dir, opts.port).await?;
-                }
-            }
-        }
-    }
+    let _ = opts.cmd.execute().await?;
     Ok(())
 }
 

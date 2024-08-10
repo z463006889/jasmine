@@ -1,4 +1,5 @@
 use clap::Parser;
+use crate::{process_password, CommandExecutor};
 
 #[derive(Debug,Parser)]
 pub struct GenPassOpts{
@@ -16,4 +17,13 @@ pub struct GenPassOpts{
 
     #[arg(long,default_value_t=true)]
     pub symbols:bool
+}
+
+impl CommandExecutor for  GenPassOpts {
+    async fn execute(self)->anyhow::Result<()> {
+        let pw=process_password(&self)?;
+            println!("{}",pw.0);
+            println!("{}",pw.1);
+            Ok(())
+    }
 }

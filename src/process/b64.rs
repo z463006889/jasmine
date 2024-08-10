@@ -1,8 +1,6 @@
-use std::{fs::File, io::Read};
-
+use std:: io::Read;
 use anyhow::Ok;
 use base64::{engine::general_purpose::{STANDARD,URL_SAFE}, prelude::*};
-use clap::builder::Str;
 
 use crate::{get_reader, Base64Type};
 pub fn process_encode(input: &str,format:Base64Type) -> anyhow::Result<String>{

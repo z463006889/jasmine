@@ -1,12 +1,22 @@
 use std::path::{Path, PathBuf};
 use clap::Parser;
+use enum_dispatch::enum_dispatch;
+use crate::{process_http_server, CommandExecutor};
 
 
 
 #[derive(Debug,Parser)]
+#[enum_dispatch(CommandExecutor)]
 pub enum HttpSubcommand {
     #[command(about="This command shows the http server")]
     Serve(HttpOpts)
+}
+
+impl CommandExecutor for HttpOpts{
+    async fn execute(self)->anyhow::Result<()> {
+        process_http_server(self.dir, self.port).await?;
+        Ok(())
+    }
 }
 
 #[derive(Debug,Parser)]

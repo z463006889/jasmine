@@ -1,6 +1,6 @@
 use clap::Parser;
-
-use super::{csv_opts::TransOpts, gen_opts::GenPassOpts, text_opts::TextSubcommand, Base64Subcommand,HttpSubcommand};
+use enum_dispatch::enum_dispatch;
+use super::{csv_opts::TransOpts,gens_opts::GenPassOpts,text_opts::TextSubcommand, Base64Subcommand,HttpSubcommand};
 
 #[derive(Debug,Parser)]
 #[command(name="rcli",version,author,about,long_about=None)]
@@ -10,6 +10,7 @@ pub struct Opts{
 }
 
 #[derive(Debug,Parser)]
+#[enum_dispatch(CommandExecutor)]
 pub enum Subcommand {
     #[command(name="trans",about="Convert CSV to other format")]
     Trans(TransOpts),
@@ -22,6 +23,9 @@ pub enum Subcommand {
     #[command(subcommand,name="http",about="http server")]
     Http(HttpSubcommand)
 }
+
+
+
 
 
 

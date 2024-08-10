@@ -1,9 +1,13 @@
-use std::{fmt, path::{Path, PathBuf}, str::FromStr};
+use std::{fmt, fs, path::{Path, PathBuf}, str::FromStr};
 use clap::Parser;
+use enum_dispatch::enum_dispatch;
+
+use crate::{process_key_gen, process_sign, process_verify, CommandExecutor};
 
 
 
 #[derive(Debug,Parser)]
+#[enum_dispatch(CommandExecutor)]
 pub enum TextSubcommand {
     #[command(about="Sign a message with a private /shared message")]
     Sign(TextSignOpts),
@@ -11,6 +15,39 @@ pub enum TextSubcommand {
     Verify(TextVerifyOpts),
     #[command(about="make a key for a command")]
     Generate(TextKeyGenrateOpts),
+}
+
+impl CommandExecutor for TextSignOpts {
+    async fn execute(self) -> anyhow::Result<()> {
+        process_sign(&self.input, &self.key, self.format)?;
+        Ok(())
+    }
+}
+
+impl CommandExecutor for TextVerifyOpts {
+    async fn execute(self) -> anyhow::Result<()> {
+        process_verify(&self.input, &self.key, self.format, &self.sign)?;
+        Ok(())
+    }
+}
+
+impl CommandExecutor for TextKeyGenrateOpts {
+    async fn execute(self) -> anyhow::Result<()> {
+                let ret = process_key_gen(self.format)?;
+                match self.format {
+                    TextSignFormat::Blake3=>{
+                        let name= self.output.join("blake3.txt");
+                        fs::write(name, &ret[0])?;
+
+                    },
+                    TextSignFormat::Ed25519=>{
+                        let dir_name = self.output;
+                        fs::write(dir_name.join("ed25519.sk"), &ret[0])?;
+                        fs::write(dir_name.join("ed25519.pk"), &ret[1])?;
+                    }
+                }
+        Ok(())
+    }
 }
 
 #[derive(Debug,Parser)]

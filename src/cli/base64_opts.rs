@@ -1,12 +1,31 @@
 use core::fmt;
 use std::{path::Path, str::FromStr};
-
 use clap::{arg, Parser};
+use enum_dispatch::enum_dispatch;
+
+use crate::{process_decode, process_encode, CommandExecutor};
 
 #[derive(Debug,Parser)]
+#[enum_dispatch(CommandExecutor)]
 pub enum  Base64Subcommand{
     Encode(Base64EncodeCommand),
     Decode(Base64DecodeCommand),
+}
+
+impl CommandExecutor for Base64EncodeCommand{
+    async fn execute(self)->anyhow::Result<()> {
+        let encode_ret= process_encode(&self.input, self.format)?;
+        println!("{}",encode_ret);
+        Ok(())
+    }
+}
+
+impl CommandExecutor for Base64DecodeCommand {
+    async fn execute(self) -> anyhow::Result<()> {
+        let decode_ret = process_decode(&self.output, self.format)?;
+        println!("{}",decode_ret);
+        Ok(())
+    }
 }
 
 #[derive(Debug,Parser)]
